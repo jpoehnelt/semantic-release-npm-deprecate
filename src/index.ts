@@ -35,7 +35,6 @@ export async function success(
 
   // get deprecations from package.json deprecations field
   deprecations = [...deprecations, ...(pkg.deprecations || [])];
-  context.logger.log(`Found ${deprecations.length} deprecations`);
 
   // short circuit if there are no deprecations
   if (deprecations.length === 0) {
@@ -44,7 +43,7 @@ export async function success(
 
   deprecations = renderDeprecations(deprecations, context);
   deprecations.forEach((deprecation) =>
-    deprecate(deprecation, pkg.name, context.logger)
+    deprecate(deprecation, pkg.name)
   );
 }
 
@@ -61,12 +60,9 @@ export const getPackage = async (context: Context) => getPkg({}, context);
 
 export const deprecate = (
   { version, message }: Deprecation,
-  name: string,
-  logger: Context["logger"]
+  name: string
 ) =>
   /* istanbul ignore next */
-  logger.log(
-    execSync(`npm deprecate ${name}@"${version}" "${message}"`, {
-      stdio: "inherit",
-    }).toString()
-  );
+  execSync(`npm deprecate ${name}@"${version}" "${message}"`, {
+    stdio: "inherit",
+  });
