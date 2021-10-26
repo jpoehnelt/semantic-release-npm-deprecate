@@ -27,5 +27,14 @@ plugins:
   - "@semantic-release/github"
   - "@semantic-release/npm"
   - "@semantic-release/git"
+  - [
+      "semantic-release-npm-deprecate",
+      {
+        "deprecations": [{
+          "version": "< ${nextRelease.version}",
+          "message": "Please use latest version."
+        }]
+      }
+    ]
 options:
   debug: true

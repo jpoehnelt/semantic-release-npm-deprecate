@@ -37,6 +37,7 @@ jobs:
             @semantic-release/git
             @semantic-release/github
             @semantic-release/npm
+            semantic-release-npm-deprecate
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           NPM_TOKEN: ${{ secrets.NPM_WOMBAT_TOKEN }}
