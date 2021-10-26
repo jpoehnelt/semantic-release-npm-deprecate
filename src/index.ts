@@ -42,7 +42,9 @@ export async function success(
   }
 
   deprecations = renderDeprecations(deprecations, context);
-  deprecations.forEach((deprecation) => deprecate(deprecation, pkg.name));
+  deprecations.forEach((deprecation) =>
+    deprecate(deprecation, pkg.name, context.logger)
+  );
 }
 
 export const renderDeprecations = (
@@ -56,8 +58,14 @@ export const renderDeprecations = (
 
 export const getPackage = async (context: Context) => getPkg({}, context);
 
-export const deprecate = ({ version, message }: Deprecation, name: string) =>
-  /* istanbul ignore next */ 
-  execSync(`npm deprecate ${name}@"${version}" "${message}`, {
-    stdio: "inherit",
-  });
+export const deprecate = (
+  { version, message }: Deprecation,
+  name: string,
+  logger: Context["logger"]
+) =>
+  /* istanbul ignore next */
+  logger.log(
+    execSync(`npm deprecate ${name}@"${version}" "${message}`, {
+      stdio: "inherit",
+    }).toString()
+  );
