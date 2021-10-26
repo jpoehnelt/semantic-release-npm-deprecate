@@ -35,7 +35,8 @@ export async function success(
 
   // get deprecations from package.json deprecations field
   deprecations = [...deprecations, ...(pkg.deprecations || [])];
-
+  context.logger.log(`Found ${deprecations.length} deprecations`);
+  
   // short circuit if there are no deprecations
   if (deprecations.length === 0) {
     return;
