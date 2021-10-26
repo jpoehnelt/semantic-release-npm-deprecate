@@ -1,0 +1,54 @@
+{
+  "name": "semantic-release-npm-deprecate",
+  "version": "1.0.0",
+  "description": "Semantic Release NPM Deprecate Plugin",
+  "keywords": [
+    "semantic-release",
+    "deprecate",
+    "npm"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jpoehnelt/semantic-release-npm-deprecate.git"
+  },
+  "license": "Apache-2.0",
+  "author": {
+    "name": "Justin Poehnelt",
+    "email": "jpoehnelt@google.com"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "files": [
+    "dist/*",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "prepare": "tsc",
+    "format": "eslint --fix src/**/*.ts",
+    "lint": "eslint src/**/*.ts",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@semantic-release/npm": "^8.0.2",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@types/jest": "^27.0.1",
+    "@types/lodash": "^4.14.176",
+    "@types/node": "^16.9.4",
+    "@types/semantic-release": "^17.2.1",
+    "@typescript-eslint/eslint-plugin": "^4.7.0",
+    "@typescript-eslint/parser": "^4.7.0",
+    "eslint": "^7.32.0",
+    "eslint-plugin-jest": "^24.1.3",
+    "jest": "^26.4.2",
+    "prettier": "^2.1.2",
+    "ts-jest": "^26.4.0",
+    "typescript": "^4.4.3"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://wombat-dressing-room.appspot.com"
+  }
+}
