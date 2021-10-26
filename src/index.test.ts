@@ -15,17 +15,22 @@
  */
 
 import * as m from "./index";
+import child_process from "child_process";
 
 import { Context, NextRelease } from "semantic-release";
 
 let getPackageSpy: jest.SpyInstance;
 let deprecateSpy: jest.SpyInstance;
+let execSyncSpy: jest.SpyInstance;
 
 beforeEach(() => {
   getPackageSpy = jest
     .spyOn(m, "getPackage")
     .mockResolvedValue({ name: "test-package" });
   deprecateSpy = jest.spyOn(m, "deprecate").mockReturnValue(undefined);
+  execSyncSpy = jest
+    .spyOn(child_process, "execSync")
+    .mockReturnValue(undefined);
 });
 
 const context: Context = {
@@ -100,5 +105,20 @@ test("should call deprecate with more complex templates", async () => {
   expect(deprecateSpy).toHaveBeenCalledWith(
     { version: "< 1", message: "Please use ^1.0.0." },
     (await m.getPackage(context)).name
+  );
+});
+
+test("should call execSync correctly", async () => {
+  deprecateSpy.mockRestore();
+  const deprecation = {
+    version: "< 1",
+    message: "Please use ^1.",
+  };
+  const name = "test-package";
+  m.deprecate(deprecation, name);
+
+  expect(execSyncSpy).toHaveBeenCalledWith(
+    `npm deprecate ${name}@"${deprecation.version}" "${deprecation.message}"`,
+    { stdio: "inherit" }
   );
 });
