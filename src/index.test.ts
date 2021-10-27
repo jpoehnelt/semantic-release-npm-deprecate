@@ -16,12 +16,14 @@
 
 import * as m from "./index";
 import child_process from "child_process";
-
+import tempy from "tempy";
+import setNpmrcAuth from "@semantic-release/npm/lib/set-npmrc-auth";
 import { Context, NextRelease } from "semantic-release";
 
 let getPackageSpy: jest.SpyInstance;
 let deprecateSpy: jest.SpyInstance;
 let execSyncSpy: jest.SpyInstance;
+let setNpmrcSpy: jest.SpyInstance;
 
 beforeEach(() => {
   getPackageSpy = jest
@@ -31,12 +33,15 @@ beforeEach(() => {
   execSyncSpy = jest
     .spyOn(child_process, "execSync")
     .mockReturnValue(undefined);
+  setNpmrcSpy = jest.spyOn(m, "setNpmrc").mockResolvedValue(undefined);
 });
 
 const context: Context = {
   logger: console,
-  env: {},
+  env: { NPM_TOKEN: "test-token" },
   nextRelease: { version: "1.2.3" } as NextRelease,
+  // @ts-ignore incorrect typings
+  cwd: tempy.directory(),
 };
 
 test("should expose success", async () => {
@@ -74,7 +79,9 @@ test("should call deprecate", async () => {
   expect(getPackageSpy).toHaveBeenCalledTimes(1);
   expect(deprecateSpy).toHaveBeenCalledWith(
     deprecations[0],
-    (await m.getPackage(context)).name
+    (await m.getPackage(context)).name,
+    expect.stringMatching(/\.npmrc$/),
+    expect.anything()
   );
 });
 
@@ -89,7 +96,9 @@ test("should call deprecate with rendered templates", async () => {
   expect(getPackageSpy).toHaveBeenCalledTimes(1);
   expect(deprecateSpy).toHaveBeenCalledWith(
     { version: "< 1.2.3", message: "Please use 1.2.3." },
-    (await m.getPackage(context)).name
+    (await m.getPackage(context)).name,
+    expect.stringMatching(/\.npmrc$/),
+    expect.anything()
   );
 });
 
@@ -104,7 +113,9 @@ test("should call deprecate with more complex templates", async () => {
   expect(getPackageSpy).toHaveBeenCalledTimes(1);
   expect(deprecateSpy).toHaveBeenCalledWith(
     { version: "< 1", message: "Please use ^1.0.0." },
-    (await m.getPackage(context)).name
+    (await m.getPackage(context)).name,
+    expect.stringMatching(/\.npmrc$/),
+    expect.anything()
   );
 });
 
@@ -115,10 +126,14 @@ test("should call execSync correctly", async () => {
     message: "Please use ^1.",
   };
   const name = "test-package";
-  m.deprecate(deprecation, name);
+  m.deprecate(deprecation, name, ".npmrc", "https://registry.npmjs.org/");
 
-  expect(execSyncSpy).toHaveBeenCalledWith(
-    `npm deprecate ${name}@"${deprecation.version}" "${deprecation.message}"`,
-    { stdio: "inherit" }
-  );
+  expect(execSyncSpy.mock.calls[0]).toMatchInlineSnapshot(`
+    Array [
+      "npm deprecate --userconfig .npmrc --registry https://registry.npmjs.org/ test-package@\\"< 1\\" \\"Please use ^1.\\"",
+      Object {
+        "stdio": "inherit",
+      },
+    ]
+  `);
 });

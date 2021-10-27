@@ -31,7 +31,8 @@
   },
   "dependencies": {
     "@semantic-release/npm": "^8.0.2",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "tempy": "<2.0.0"
   },
   "devDependencies": {
     "@types/jest": "^27.0.1",

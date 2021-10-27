@@ -16,8 +16,13 @@
 
 import { Context } from "semantic-release";
 import getPkg from "@semantic-release/npm/lib/get-pkg";
+import getRegistry from "@semantic-release/npm/lib/get-registry";
+import setNpmrcAuth from "@semantic-release/npm/lib/set-npmrc-auth";
 import { template } from "lodash";
 import { execSync } from "child_process";
+import tempy from "tempy";
+
+const npmrc = tempy.file({ name: ".npmrc" });
 
 export interface Deprecation {
   version: string;
@@ -40,10 +45,13 @@ export async function success(
   if (deprecations.length === 0) {
     return;
   }
+  // update .npmrc file
+  const registry = await getRegistry(pkg, context);
+  await setNpmrc(npmrc, registry, context);
 
   deprecations = renderDeprecations(deprecations, context);
   deprecations.forEach((deprecation) =>
-    deprecate(deprecation, pkg.name)
+    deprecate(deprecation, pkg.name, npmrc, registry)
   );
 }
 
@@ -60,9 +68,22 @@ export const getPackage = async (context: Context) => getPkg({}, context);
 
 export const deprecate = (
   { version, message }: Deprecation,
-  name: string
+  name: string,
+  npmrc: string,
+  registry: string
 ) =>
   /* istanbul ignore next */
-  execSync(`npm deprecate ${name}@"${version}" "${message}"`, {
-    stdio: "inherit",
-  });
+  execSync(
+    `npm deprecate --userconfig ${npmrc} --registry ${registry} ${name}@"${version}" "${message}"`,
+    {
+      stdio: "inherit",
+    }
+  );
+
+export const setNpmrc = async (
+  npmrc: string,
+  registry: string,
+  context: Context
+) => {
+  await setNpmrcAuth(npmrc, registry, context);
+};
