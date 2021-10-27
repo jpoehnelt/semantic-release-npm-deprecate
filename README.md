@@ -25,6 +25,7 @@ The following example will mark all previous major versions as deprecated. That 
 {
   "plugins": [
     "@semantic-release/commit-analyzer",
+    "@semantic-release/npm",
     [
       "semantic-release-npm-deprecate",
       {
@@ -46,10 +47,17 @@ The following example will mark all previous major versions as deprecated. That 
   - `version`: A version range that will be deprecated.
   - `message`: A message that will be added to the release notes.
 
-`version` and `message` support Lodash templates and are passed the Semantic Release [Context](https://semantic-release.gitbook.io/semantic-release/developer-guide/plugin#context). For example, see the following:
+This plugin will also check for configuration in the `package.json` file under the `deprecations` field. This is experimental and the field name may change in the future.
+
+### NPM
+Configuration for NPM registry, token, etc matches that of [@semantic-release/npm](https://www.npmjs.com/package/@semantic-release/npm).
+
+### Templates
+
+The `version` and `message` fields support Lodash templates and are passed the [Context](https://semantic-release.gitbook.io/semantic-release/developer-guide/plugin#context) object. The following example uses the `nextRelease` object to get the next release version and split off the major version.
 
 ```js
 {
-  version: "< ${nextRelease.version.split('.')[0]}"
+  version: "< ${nextRelease.version.split('.')[0]}";
 }
 ```
