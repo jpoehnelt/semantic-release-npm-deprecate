@@ -51,7 +51,7 @@ export async function success(
 
   deprecations = renderDeprecations(deprecations, context);
   deprecations.forEach((deprecation) =>
-    deprecate(deprecation, pkg.name, npmrc, registry)
+    deprecate(deprecation, pkg.name, npmrc, registry, context)
   );
 }
 
@@ -70,15 +70,18 @@ export const deprecate = (
   { version, message }: Deprecation,
   name: string,
   npmrc: string,
-  registry: string
-) =>
+  registry: string,
+  context: Context
+) => {
+  const command = `npm deprecate --userconfig ${npmrc} --registry ${registry} ${name}@"${version}" "${message}"`;
+
   /* istanbul ignore next */
-  execSync(
-    `npm deprecate --userconfig ${npmrc} --registry ${registry} ${name}@"${version}" "${message}"`,
-    {
-      stdio: "inherit",
-    }
-  );
+  execSync(command, {
+    stdio: "inherit",
+  });
+
+  context.logger.log(`Completed call to: ${command}`);
+};
 
 export const setNpmrc = async (
   npmrc: string,

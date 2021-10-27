@@ -17,8 +17,8 @@
 import * as m from "./index";
 import child_process from "child_process";
 import tempy from "tempy";
-import setNpmrcAuth from "@semantic-release/npm/lib/set-npmrc-auth";
 import { Context, NextRelease } from "semantic-release";
+import { readFileSync } from "fs";
 
 let getPackageSpy: jest.SpyInstance;
 let deprecateSpy: jest.SpyInstance;
@@ -37,7 +37,7 @@ beforeEach(() => {
 });
 
 const context: Context = {
-  logger: console,
+  logger: { log: jest.fn(), error: jest.fn() },
   env: { NPM_TOKEN: "test-token" },
   nextRelease: { version: "1.2.3" } as NextRelease,
   // @ts-ignore incorrect typings
@@ -81,7 +81,8 @@ test("should call deprecate", async () => {
     deprecations[0],
     (await m.getPackage(context)).name,
     expect.stringMatching(/\.npmrc$/),
-    expect.anything()
+    expect.anything(),
+    context
   );
 });
 
@@ -98,7 +99,8 @@ test("should call deprecate with rendered templates", async () => {
     { version: "< 1.2.3", message: "Please use 1.2.3." },
     (await m.getPackage(context)).name,
     expect.stringMatching(/\.npmrc$/),
-    expect.anything()
+    expect.anything(),
+    context
   );
 });
 
@@ -115,7 +117,8 @@ test("should call deprecate with more complex templates", async () => {
     { version: "< 1", message: "Please use ^1.0.0." },
     (await m.getPackage(context)).name,
     expect.stringMatching(/\.npmrc$/),
-    expect.anything()
+    expect.anything(),
+    context
   );
 });
 
@@ -126,7 +129,13 @@ test("should call execSync correctly", async () => {
     message: "Please use ^1.",
   };
   const name = "test-package";
-  m.deprecate(deprecation, name, ".npmrc", "https://registry.npmjs.org/");
+  m.deprecate(
+    deprecation,
+    name,
+    ".npmrc",
+    "https://registry.npmjs.org/",
+    context
+  );
 
   expect(execSyncSpy.mock.calls[0]).toMatchInlineSnapshot(`
     Array [
@@ -136,4 +145,21 @@ test("should call execSync correctly", async () => {
       },
     ]
   `);
+  expect(context.logger.log).toBeCalledWith(
+    'Completed call to: npm deprecate --userconfig .npmrc --registry https://registry.npmjs.org/ test-package@"< 1" "Please use ^1."'
+  );
+});
+
+test("should set npmrc", async () => {
+  setNpmrcSpy.mockRestore();
+  const consoleLogSpy = jest.spyOn(console, "log").mockReturnValue(undefined);
+
+  const npmrc = tempy.file();
+
+  await m.setNpmrc(npmrc, "https://example.com", context);
+  consoleLogSpy.mockRestore();
+
+  expect(readFileSync(npmrc).toString()).toContain(
+    "//example.com/:_authToken = ${NPM_TOKEN}"
+  );
 });
