@@ -17,6 +17,7 @@
 module.exports = {
   clearMocks: true,
   moduleFileExtensions: ["js", "ts"],
+  modulePathIgnorePatterns: ["<rootDir>/dist/"],
   transform: {
     "^.+\\.ts$": "ts-jest"
   },
