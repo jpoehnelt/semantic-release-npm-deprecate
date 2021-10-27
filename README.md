@@ -41,6 +41,8 @@ The following example will mark all previous major versions as deprecated. That 
 }
 ```
 
+This plugin runs in the `publish` lifecycle.
+
 ## Configuration Options
 
 - `deprecations`: An array containing objects with the following properties:

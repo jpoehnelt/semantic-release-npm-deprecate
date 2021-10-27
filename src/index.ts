@@ -32,7 +32,7 @@ export interface PluginConfig {
   deprecations?: Deprecation[];
 }
 
-export async function success(
+export async function publish(
   { deprecations = [] }: PluginConfig,
   context: Context
 ): Promise<void> {

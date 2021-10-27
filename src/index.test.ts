@@ -44,20 +44,20 @@ const context: Context = {
   cwd: tempy.directory(),
 };
 
-test("should expose success", async () => {
-  expect(m.success).toBeDefined();
+test("should expose publish", async () => {
+  expect(m.publish).toBeDefined();
 });
 
 test("should return if no deprecations", async () => {
   await expect(
-    m.success({ deprecations: [] }, context)
+    m.publish({ deprecations: [] }, context)
   ).resolves.toBeUndefined();
   expect(getPackageSpy).toHaveBeenCalledTimes(1);
   expect(deprecateSpy).not.toHaveBeenCalled();
 });
 
 test("should return if no config", async () => {
-  await expect(m.success({}, context)).resolves.toBeUndefined();
+  await expect(m.publish({}, context)).resolves.toBeUndefined();
   expect(getPackageSpy).toHaveBeenCalledTimes(1);
   expect(deprecateSpy).not.toHaveBeenCalled();
 });
@@ -68,14 +68,14 @@ test("should get deprecations from package.json", async () => {
     deprecations: [{ version: "<1", message: "foo" }],
   });
 
-  await expect(m.success({}, context)).resolves.toBeUndefined();
+  await expect(m.publish({}, context)).resolves.toBeUndefined();
   expect(getPackageSpy).toHaveBeenCalledTimes(1);
   expect(deprecateSpy).toHaveBeenCalledTimes(1);
 });
 
 test("should call deprecate", async () => {
   const deprecations = [{ version: "<1", message: "Please use version > 1." }];
-  await expect(m.success({ deprecations }, context)).resolves.toBeUndefined();
+  await expect(m.publish({ deprecations }, context)).resolves.toBeUndefined();
   expect(getPackageSpy).toHaveBeenCalledTimes(1);
   expect(deprecateSpy).toHaveBeenCalledWith(
     deprecations[0],
@@ -93,7 +93,7 @@ test("should call deprecate with rendered templates", async () => {
       message: "Please use ${nextRelease.version}.",
     },
   ];
-  await expect(m.success({ deprecations }, context)).resolves.toBeUndefined();
+  await expect(m.publish({ deprecations }, context)).resolves.toBeUndefined();
   expect(getPackageSpy).toHaveBeenCalledTimes(1);
   expect(deprecateSpy).toHaveBeenCalledWith(
     { version: "< 1.2.3", message: "Please use 1.2.3." },
@@ -111,7 +111,7 @@ test("should call deprecate with more complex templates", async () => {
       message: "Please use ^${nextRelease.version.split('.')[0]}.0.0.",
     },
   ];
-  await expect(m.success({ deprecations }, context)).resolves.toBeUndefined();
+  await expect(m.publish({ deprecations }, context)).resolves.toBeUndefined();
   expect(getPackageSpy).toHaveBeenCalledTimes(1);
   expect(deprecateSpy).toHaveBeenCalledWith(
     { version: "< 1", message: "Please use ^1.0.0." },
