@@ -63,3 +63,5 @@ The `version` and `message` fields support Lodash templates and are passed the [
   version: "< ${nextRelease.version.split('.')[0]}";
 }
 ```
+
+See https://semver.npmjs.com/ for all supported version ranges.
