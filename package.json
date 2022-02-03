@@ -4,6 +4,7 @@
   "description": "Semantic Release NPM Deprecate Plugin",
   "keywords": [
     "semantic-release",
+    "semantic-release-plugin",
     "deprecate",
     "npm"
   ],
