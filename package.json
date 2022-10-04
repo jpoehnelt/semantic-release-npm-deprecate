@@ -1,6 +1,6 @@
 {
   "name": "semantic-release-npm-deprecate",
-  "version": "1.0.30",
+  "version": "1.0.31",
   "description": "Semantic Release NPM Deprecate Plugin",
   "keywords": [
     "semantic-release",
